@@ -1,0 +1,16 @@
+---
+title: "Graphing Return Percentages"
+output: html_document
+date: "2023-03-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rmarkdown)
+```
+
+
+```{r}
+convert_ipynb("Case 3 - Portfolio Optimization.ipynb", "file.Rmd")
+```
+

@@ -1,0 +1,82 @@
+---
+title: An R Markdown document converted from "Case 3 - Portfolio Optimization.ipynb"
+output: html_document
+---
+
+```{python}
+import numpy as np
+import pandas as pd
+import scipy as sp
+```
+
+```{python}
+# Reading in the asset prices
+
+asset_prices = pd.read_csv("Training Data_Case 3.csv")
+asset_prices = asset_prices.drop(columns = asset_prices.columns[0])
+asset_prices
+```
+
+```{python}
+# Creating the return dataset
+
+returns = pd.DataFrame(columns=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'])
+
+for i in range(0, 2519):
+    returns.at[i,'A'] = ((asset_prices.at[i+1,'A'] - asset_prices.at[i,'A']) / asset_prices.at[i,'A'])*100
+    returns.at[i,'B'] = ((asset_prices.at[i+1,'B'] - asset_prices.at[i,'B']) / asset_prices.at[i,'B'])*100
+    returns.at[i,'C'] = ((asset_prices.at[i+1,'C'] - asset_prices.at[i,'C']) / asset_prices.at[i,'C'])*100
+    returns.at[i,'D'] = ((asset_prices.at[i+1,'D'] - asset_prices.at[i,'D']) / asset_prices.at[i,'D'])*100
+    returns.at[i,'E'] = ((asset_prices.at[i+1,'E'] - asset_prices.at[i,'E']) / asset_prices.at[i,'E'])*100
+    returns.at[i,'F'] = ((asset_prices.at[i+1,'F'] - asset_prices.at[i,'F']) / asset_prices.at[i,'F'])*100
+    returns.at[i,'G'] = ((asset_prices.at[i+1,'G'] - asset_prices.at[i,'G']) / asset_prices.at[i,'G'])*100
+    returns.at[i,'H'] = ((asset_prices.at[i+1,'H'] - asset_prices.at[i,'H']) / asset_prices.at[i,'H'])*100
+    returns.at[i,'I'] = ((asset_prices.at[i+1,'I'] - asset_prices.at[i,'I']) / asset_prices.at[i,'I'])*100
+    returns.at[i,'J'] = ((asset_prices.at[i+1,'J'] - asset_prices.at[i,'J']) / asset_prices.at[i,'J'])*100
+
+returns
+
+returns["days"] = np.arange(2519)
+```
+
+```{python}
+def allocate_portfolio(asset_prices):
+    
+    # This simple strategy equally weights all assets every period
+    # (called a 1/n strategy).
+    
+    n_assets = len(asset_prices)
+    weights = np.repeat(1 / n_assets, n_assets)
+    return weights
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(mosaic)
+library(cowplot)
+
+r_returns <- as.data.frame(py$returns)
+typeof(py$returns)
+unlist(r_returns$A)
+
+# Created Density Plots to Show Average Returns for Each Stock
+A <- gf_density(~unlist(r_returns$A))
+B <- gf_density(~unlist(r_returns$B))
+C <- gf_density(~unlist(r_returns$C))
+D <- gf_density(~unlist(r_returns$D))
+E <- gf_density(~unlist(r_returns$E))
+F <- gf_density(~unlist(r_returns$F))
+G <- gf_density(~unlist(r_returns$G))
+H <- gf_density(~unlist(r_returns$H))
+I <- gf_density(~unlist(r_returns$I))
+J <- gf_density(~unlist(r_returns$J))
+
+plot_grid(A, B, C, D, E, F, G, H, I, J)
+
+# Created Scatterplots to Show How Each Stock Changed Over Time in Terms of Returns
+
+```
+
+
+
