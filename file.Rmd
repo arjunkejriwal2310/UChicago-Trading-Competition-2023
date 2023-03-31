@@ -15,6 +15,8 @@ import scipy as sp
 asset_prices = pd.read_csv("Training Data_Case 3.csv")
 asset_prices = asset_prices.drop(columns = asset_prices.columns[0])
 asset_prices
+
+asset_prices["days"] = np.arange(2520)
 ```
 
 ```{python}
@@ -55,6 +57,26 @@ library(ggplot2)
 library(dplyr)
 library(mosaic)
 library(cowplot)
+library(reticulate)
+
+r_prices <- as.data.frame(py$asset_prices)
+typeof(py$asset_prices)
+unlist(r_prices)
+
+# Created Density Plots to Show Average Prices for Each Stock
+A_price <- gf_density(~unlist(r_prices$A))
+B_price <- gf_density(~unlist(r_prices$B))
+C_price <- gf_density(~unlist(r_prices$C))
+D_price <- gf_density(~unlist(r_prices$D))
+E_price <- gf_density(~unlist(r_prices$E))
+F_price <- gf_density(~unlist(r_prices$F))
+G_price <- gf_density(~unlist(r_prices$G))
+H_price <- gf_density(~unlist(r_prices$H))
+I_price <- gf_density(~unlist(r_prices$I))
+J_price <- gf_density(~unlist(r_prices$J))
+
+plot_grid(A_price, B_price, C_price, D_price, E_price, F_price, G_price, H_price, I_price, J_price)
+
 
 r_returns <- as.data.frame(py$returns)
 typeof(py$returns)
@@ -74,8 +96,27 @@ J <- gf_density(~unlist(r_returns$J))
 
 plot_grid(A, B, C, D, E, F, G, H, I, J)
 
-# Created Scatterplots to Show How Each Stock Changed Over Time in Terms of Returns
-
+# Created Scatterplots 
+ggplot(r_returns, aes(x = as.numeric(days), y = as.numeric(A))) +
+  geom_line()
+ggplot(r_returns, aes(x = as.numeric(days), y = as.numeric(B))) +
+  geom_line()
+ggplot(r_returns, aes(x = as.numeric(days), y = as.numeric(C))) +
+  geom_line()
+ggplot(r_returns, aes(x = as.numeric(days), y = as.numeric(D))) +
+  geom_line()
+ggplot(r_returns, aes(x = as.numeric(days), y = as.numeric(E))) +
+  geom_line()
+ggplot(r_returns, aes(x = as.numeric(days), y = as.numeric(F))) +
+  geom_line()
+ggplot(r_returns, aes(x = as.numeric(days), y = as.numeric(H))) +
+  geom_line()
+ggplot(r_returns, aes(x = as.numeric(days), y = as.numeric(I))) +
+  geom_line()
+ggplot(r_returns, aes(x = as.numeric(days), y = as.numeric(J))) +
+  geom_line()
+ggplot(r_returns, aes(x = as.numeric(days), y = as.numeric(K))) +
+  geom_line()
 ```
 
 
