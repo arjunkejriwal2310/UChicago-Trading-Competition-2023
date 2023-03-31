@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[64]:
+# In[61]:
 
 
 import numpy as np
@@ -11,7 +11,7 @@ import math
 from scipy.optimize import minimize
 
 
-# In[4]:
+# In[62]:
 
 
 # Reading in the asset prices
@@ -21,7 +21,7 @@ asset_prices = asset_prices.drop(columns = asset_prices.columns[0])
 asset_prices
 
 
-# In[5]:
+# In[71]:
 
 
 # Creating the return dataset
@@ -43,10 +43,10 @@ for i in range(0, 2519):
 returns
 
 
-# In[23]:
+# In[72]:
 
 
-# Converting the type of  
+# Converting the type of data in the returns dataset 
 
 stocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
@@ -56,27 +56,38 @@ for s in stocks:
 returns.dtypes
 
 
-# In[25]:
+# In[65]:
 
 
-# Calculating the covariance-variance matrix
+# Creating the training and testing data (to test this optimization method)
 
-cov_matrix = pd.DataFrame(np.cov(np.transpose(returns)))
+training_data = returns.loc[:2000,:].copy() 
+testing_data = returns.loc[2001:, :].copy()
+
+testing_data
+
+
+# In[66]:
+
+
+# Calculating the covariance matrix for the training data
+
+cov_matrix = pd.DataFrame(np.cov(np.transpose(training_data)))
 cov_matrix
 
 
-# In[69]:
+# In[67]:
 
 
-# Running optimization on the first day returns 
+# Finding the weight vector of the last day in the dataset (Just for testing the optimization algorithm)
 
 initial_weights = [0.1 for i in range(0, 10)]
-first_return = returns.loc[0, :]
+last_return = returns.loc[2518, :]
 initial_weights = np.array(initial_weights)
-first_return = np.array(first_return)
+last_return = np.array(last_return)
 
 def portfolio_objective(weights, returns, cov_matrix):
-    portfolio_return = np.dot(weights, first_return)
+    portfolio_return = np.dot(weights, last_return)
     portfolio_risk = np.matmul(np.matmul(weights, cov_matrix), np.transpose(weights))
     return -(portfolio_return/math.sqrt(portfolio_risk))
 
@@ -87,32 +98,61 @@ result = minimize(portfolio_objective, initial_weights, args=(returns, cov_matri
 optimized_weights = result.x
 print(optimized_weights)
 print(result)
-
-#for i in range(0, 2519):
-    #daily_return = returns.loc[i,:]
-    
-
-'''
-Things to improve:
-
-1) Split into testing and training sets through an 80-20 split (thus your initial covariance matrix will only incorporate 80% of the data)
-2) Extend the above solution to all 100% of the data, and create the functionality of reading the data UChicago will provide and calculating the optimal weights   
-
-'''
     
 
 
-# In[ ]:
+# In[68]:
+
+
+# Function for returning optimal portfolio weights
+
+def return_weights(return_vector, cov_matrix):
+    
+    initial_weights = [0.1 for i in range(0, 10)]
+    initial_weights = np.array(initial_weights)
+    return_vector = np.array(return_vector)
+    
+    constraints = [{'type': 'eq', 'fun': lambda x: np.sum(x) - 1},
+               {'type': 'ineq', 'fun': lambda x: x}]
+    
+    result = minimize(portfolio_objective, initial_weights, args=(returns, cov_matrix), method='SLSQP', bounds=[(0, 1)] * returns.shape[1], constraints=constraints)
+    optimized_weights = result.x
+    
+    # print("The optimized weights are: ", optimized_weights)
+    print("The sharpe ratio is: ", result.fun)
+    
+    return optimized_weights
+
+
+# In[69]:
+
+
+# Testing the optimization algorithm using the testing data
+
+for i in range(2001,2519):
+    training_data.loc[len(training_data.index)] = testing_data.loc[i,:]
+    cov_matrix = pd.DataFrame(np.cov(np.transpose(training_data)))
+    return_weights(testing_data.loc[i,:],cov_matrix)
+    
+# We are consistently getting a sharpe ratio of around 1.92, which is a great sign (but we can still try to improve the sharpe ratio)
+
+
+# In[92]:
 
 
 # The main function that UChicago will be running
 
 def allocate_portfolio(asset_prices):
     
-    # This simple strategy equally weights all assets every period
-    # (called a 1/n strategy).
+    stock_returns = returns.copy()
+    asset_prices = np.array(asset_prices)
+    stock_returns.loc[len(stock_returns.index)] = asset_prices
+    cov_matrix = pd.DataFrame(np.cov(np.transpose(stock_returns)))
+    optimized_weights = return_weights(testing_data.loc[i,:],cov_matrix)
     
-    n_assets = len(asset_prices)
-    weights = np.repeat(1 / n_assets, n_assets)
-    return weights
+    return optimized_weights
+
+# Testing the function above
+
+allocate_portfolio([317, 1310, 210, 296, 53, 96, 158, 341, 94, 33])
 
