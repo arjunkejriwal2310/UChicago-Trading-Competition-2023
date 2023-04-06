@@ -1,0 +1,39 @@
+---
+title: "Case 1 - Data Analysis"
+output: html_document
+date: "2023-04-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(forecast)
+library(readr)
+```
+
+
+
+```{r}
+weather_data <- read.csv("xchange-v1.0.2-115-g6b94+8ef0/data/case1/weather_2022.csv")
+
+# ARIMA Modeling
+weather_data_uni <- subset(weather_data, select = -X)
+
+ts_data <- ts(weather_data_uni, frequency = 12)
+arima_model <- auto.arima(ts_data)
+forecast_data <- forecast(arima_model, h = 5)
+plot(forecast_data)
+```
+```{r}
+# Season Decomposition of Time Series
+decomp <- stl(ts_data_2, s.window = "periodic", t.window = 12, robust = TRUE)
+seasonal <- decomp$time.series[, "seasonal"]
+plot(seasonal, main = "Seasonal Component")
+```
+
+```{r}
+# Exponential Smoothing
+model <- ets(ts_data, model = "A")
+forecast_values <- forecast(model, h = 12)
+plot(forecast_values, main = "Exponential Smoothing Forecast")
+```
+
